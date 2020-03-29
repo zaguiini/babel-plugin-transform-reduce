@@ -1,27 +1,58 @@
-# TSDX Bootstrap
+# babel-plugin-transform-reduce
 
-This project was bootstrapped with [TSDX](https://github.com/jaredpalmer/tsdx).
+Turns this
 
-## Local Development
+```js
+const fn = () => {
+  // do stuff
 
-Below is a list of commands you will probably find useful.
+  return [1, 2, 3].filter(i => i > 1).map(i => i * 2)
+}
+```
 
-### `npm start` or `yarn start`
+Into this
 
-Runs the project in development/watch mode. Your project will be rebuilt upon changes. TSDX has a special logger for you convenience. Error messages are pretty printed and formatted for compatibility VS Code's Problems tab.
+```js
+const fn = () => {
+  // do stuff
 
-<img src="https://user-images.githubusercontent.com/4060187/52168303-574d3a00-26f6-11e9-9f3b-71dbec9ebfcb.gif" width="600" />
+  const _filterFn = function (i) {
+    return i > 1;
+  }
 
-Your library will be rebuilt if you make edits.
+  const _mapFn = function (i) {
+    return i * 2;
+  }
 
-### `npm run build` or `yarn build`
+  return [1, 2, 3].reduce(function(curr, next) {
+    if(_filterFn(next)) {
+      curr.push(_mapFn(next, curr.length))
+    }
 
-Bundles the package to the `dist` folder.
-The package is optimized and bundled with Rollup into multiple formats (CommonJS, UMD, and ES Module).
+    return curr
+  }, [])
+}
+```
 
-<img src="https://user-images.githubusercontent.com/4060187/52168322-a98e5b00-26f6-11e9-8cf6-222d716b75ef.gif" width="600" />
+Because it's [way faster](https://jsperf.com/reduce-filter-map/1), but less readable.
+So I've created this plugin to deal with it: it transforms `.filter() + .map()` calls to `.reduce()` under the hood!
 
-### `npm test` or `yarn test`
+Usage:
 
-Runs the test watcher (Jest) in an interactive mode.
-By default, runs tests related to files changed since the last commit.
+```bash
+yarn add babel-plugin-transform-reduce
+```
+
+then, in your `.babelrc`:
+
+```json
+{
+  "plugins": ["transform-reduce"]
+}
+```
+
+You're all set!
+
+# License
+
+MIT

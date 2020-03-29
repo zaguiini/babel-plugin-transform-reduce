@@ -1,16 +1,16 @@
 import { NodePath } from 'babel-traverse'
 import {
-  arrowFunctionExpression,
   CallExpression,
   identifier,
   isArrowFunctionExpression,
   isIdentifier,
   MemberExpression,
-  variableDeclaration,
-  variableDeclarator,
 } from 'babel-types'
 
-import { getMapAndFilterExpression } from './helpers'
+import {
+  getMapAndFilterExpression,
+  insertFunctionExpressionIntoBlock,
+} from './helpers'
 import { reducePlaceholder } from './placeholders'
 
 export const visitor = {
@@ -39,28 +39,18 @@ export const visitor = {
 
       if (!areBothIdentifiers && canWeInsertNewStatements) {
         if (!isIdentifier(filterExpression)) {
-          const { params, body } = filterExpression
-
-          path.parentPath.insertBefore(
-            variableDeclaration('const', [
-              variableDeclarator(
-                FILTER_EXPRESSION_IDENTIFIER,
-                arrowFunctionExpression(params, body)
-              ),
-            ])
+          insertFunctionExpressionIntoBlock(
+            path.parentPath,
+            FILTER_EXPRESSION_IDENTIFIER,
+            filterExpression
           )
         }
 
         if (!isIdentifier(mapExpression)) {
-          const { params, body } = mapExpression
-
-          path.parentPath.insertBefore(
-            variableDeclaration('const', [
-              variableDeclarator(
-                MAP_EXPRESSION_IDENTIFIER,
-                arrowFunctionExpression(params, body)
-              ),
-            ])
+          insertFunctionExpressionIntoBlock(
+            path.parentPath,
+            MAP_EXPRESSION_IDENTIFIER,
+            mapExpression
           )
         }
       }

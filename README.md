@@ -24,13 +24,15 @@ const fn = () => {
     return i * 2;
   }
 
-  return [1, 2, 3].reduce(function(curr, next) {
+  const _reducer = function(curr, next) {
     if(_filterFn(next)) {
       curr.push(_mapFn(next, curr.length))
     }
 
     return curr
-  }, [])
+  }
+
+  return [1, 2, 3].reduce(_reducer, [])
 }
 ```
 

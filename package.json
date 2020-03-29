@@ -1,23 +1,53 @@
 {
-  "name": "babel-plugin-transform-reduce",
-  "version": "1.0.0",
-  "main": "dist/index.js",
+  "version": "0.1.0",
   "license": "MIT",
-  "devDependencies": {
-    "@types/babel-traverse": "^6.25.5",
-    "@types/babylon": "^6.16.5",
-    "@types/node": "^13.9.2",
-    "ts-node": "^8.7.0",
-    "ts-node-dev": "^1.0.0-pre.44",
-    "typescript": "^3.8.3"
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
   },
   "scripts": {
-    "start": "ts-node-dev --respawn src/index.ts",
-    "run-once": "ts-node src/index.ts",
-    "build": "tsc"
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test",
+    "lint": "tsdx lint",
+    "prepare": "tsdx build"
+  },
+  "peerDependencies": {},
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint"
+    }
+  },
+  "prettier": {
+    "printWidth": 80,
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "name": "babel-plugin-transform-reduce",
+  "author": "Luis Felipe Zaguini",
+  "module": "dist/babel-plugin-transform-reduce.esm.js",
+  "devDependencies": {
+    "@types/babel-generator": "^6.25.3",
+    "@types/babel-template": "^6.25.2",
+    "@types/babel-traverse": "^6.25.5",
+    "@types/jest": "^25.1.4",
+    "babel-generator": "^6.26.1",
+    "babel-traverse": "^6.26.0",
+    "babylon": "^6.18.0",
+    "husky": "^4.2.3",
+    "tsdx": "^0.13.0",
+    "tslib": "^1.11.1",
+    "typescript": "^3.8.3"
   },
   "dependencies": {
-    "babel-traverse": "^6.26.0",
-    "babylon": "^6.18.0"
+    "@babel/helper-plugin-utils": "^7.8.3",
+    "babel-template": "^6.26.0",
+    "babel-types": "^6.26.0"
   }
 }

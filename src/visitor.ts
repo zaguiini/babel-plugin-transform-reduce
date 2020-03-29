@@ -1,17 +1,18 @@
 import { NodePath } from 'babel-traverse'
 import {
-  CallExpression,
+  blockStatement,
+  CallExpression, Expression, FunctionExpression,
   identifier,
-  isArrowFunctionExpression,
+  isArrowFunctionExpression, isCallExpression,
   isIdentifier,
-  MemberExpression,
+  returnStatement,
   variableDeclaration,
   variableDeclarator,
 } from 'babel-types'
 
 import {
   getMapAndFilterExpression,
-  insertFunctionExpressionIntoBlock,
+  insertFunctionExpressionBefore,
 } from './helpers'
 import { renderReduce, renderReducer } from './placeholders'
 
@@ -33,56 +34,54 @@ export const visitor = {
         ? identifier(filterExpression.name)
         : path.scope.generateUidIdentifier('filterFn')
 
-      const areBothIdentifiers =
-        isIdentifier(mapExpression) && isIdentifier(filterExpression)
-      const canWeInsertNewStatements = !isArrowFunctionExpression(
-        path.parentPath
-      )
+      const bodyOfParent = (path.parent as FunctionExpression)
+      const canWeInsertNewStatements = !isCallExpression(bodyOfParent.body)
+      const callee = (path.get('callee.object.callee.object') as NodePath<Expression>).node
 
-      if (!areBothIdentifiers && canWeInsertNewStatements) {
-        if (!isIdentifier(filterExpression)) {
-          insertFunctionExpressionIntoBlock(
-            path.parentPath,
-            FILTER_EXPRESSION_IDENTIFIER,
-            filterExpression
-          )
-        }
-
-        if (!isIdentifier(mapExpression)) {
-          insertFunctionExpressionIntoBlock(
-            path.parentPath,
-            MAP_EXPRESSION_IDENTIFIER,
-            mapExpression
-          )
-        }
-      }
-
+      let statement = path.parentPath
       const REDUCER_IDENTIFIER = path.scope.generateUidIdentifier('reducer')
 
-      const REDUCER = renderReducer({
-        filter: canWeInsertNewStatements
-          ? FILTER_EXPRESSION_IDENTIFIER
-          : filterExpression,
-        map: canWeInsertNewStatements
-          ? MAP_EXPRESSION_IDENTIFIER
-          : mapExpression,
-        isArrowFunction: isArrowFunctionExpression(filterExpression)
+      const reducer = renderReduce({
+        callee,
+        reducer: REDUCER_IDENTIFIER,
       })
 
-      if (canWeInsertNewStatements) {
-        path.parentPath.insertBefore(
-          variableDeclaration('const', [
-            variableDeclarator(REDUCER_IDENTIFIER, REDUCER),
-          ])
+      if(!canWeInsertNewStatements) {
+        bodyOfParent.body = blockStatement([
+          returnStatement(reducer)
+        ])
+
+        statement = (path.parentPath.get('body.body') as NodePath[])[0]
+      } else {
+        path.replaceWith(reducer)
+      }
+
+      if (!isIdentifier(filterExpression)) {
+        insertFunctionExpressionBefore(
+            statement,
+            FILTER_EXPRESSION_IDENTIFIER,
+            filterExpression
         )
       }
 
-      path.replaceWith(
-        renderReduce({
-          callee: (((path.node.callee as MemberExpression)
-            .object as CallExpression).callee as MemberExpression).object,
-          reducer: canWeInsertNewStatements ? REDUCER_IDENTIFIER : REDUCER,
-        })
+      if (!isIdentifier(mapExpression)) {
+        insertFunctionExpressionBefore(
+            statement,
+            MAP_EXPRESSION_IDENTIFIER,
+            mapExpression
+        )
+      }
+
+      const REDUCER = renderReducer({
+        filter: FILTER_EXPRESSION_IDENTIFIER,
+        map: MAP_EXPRESSION_IDENTIFIER,
+        isArrowFunction: isArrowFunctionExpression(filterExpression)
+      })
+
+      statement.insertBefore(
+          variableDeclaration('const', [
+            variableDeclarator(REDUCER_IDENTIFIER, REDUCER),
+          ])
       )
     },
   },

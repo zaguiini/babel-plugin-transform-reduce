@@ -41,7 +41,7 @@ export const getMapAndFilterExpression = (
   }
 }
 
-export const insertFunctionExpressionIntoBlock = (
+export const insertFunctionExpressionBefore = (
   block: NodePath,
   identifier: Identifier,
   expression: FunctionExpression

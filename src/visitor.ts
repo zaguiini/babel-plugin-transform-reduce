@@ -5,13 +5,15 @@ import {
   isArrowFunctionExpression,
   isIdentifier,
   MemberExpression,
+  variableDeclaration,
+  variableDeclarator,
 } from 'babel-types'
 
 import {
   getMapAndFilterExpression,
   insertFunctionExpressionIntoBlock,
 } from './helpers'
-import { reducePlaceholder } from './placeholders'
+import { renderReduce, renderReducer } from './placeholders'
 
 export const visitor = {
   CallExpression: {
@@ -55,16 +57,30 @@ export const visitor = {
         }
       }
 
+      const REDUCER_IDENTIFIER = path.scope.generateUidIdentifier('reducer')
+
+      const REDUCER = renderReducer({
+        filter: canWeInsertNewStatements
+          ? FILTER_EXPRESSION_IDENTIFIER
+          : filterExpression,
+        map: canWeInsertNewStatements
+          ? MAP_EXPRESSION_IDENTIFIER
+          : mapExpression,
+      })
+
+      if (canWeInsertNewStatements) {
+        path.parentPath.insertBefore(
+          variableDeclaration('const', [
+            variableDeclarator(REDUCER_IDENTIFIER, REDUCER),
+          ])
+        )
+      }
+
       path.replaceWith(
-        reducePlaceholder({
-          CALLED: ((((path.node as CallExpression).callee as MemberExpression)
+        renderReduce({
+          callee: ((((path.node as CallExpression).callee as MemberExpression)
             .object as CallExpression).callee as MemberExpression).object,
-          FILTER_EXPRESSION_IDENTIFIER: canWeInsertNewStatements
-            ? FILTER_EXPRESSION_IDENTIFIER
-            : filterExpression,
-          MAP_EXPRESSION_IDENTIFIER: canWeInsertNewStatements
-            ? MAP_EXPRESSION_IDENTIFIER
-            : mapExpression,
+          reducer: canWeInsertNewStatements ? REDUCER_IDENTIFIER : REDUCER,
         })
       )
     },

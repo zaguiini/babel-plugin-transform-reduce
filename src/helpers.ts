@@ -8,7 +8,7 @@ import {
   variableDeclaration,
   variableDeclarator,
   blockStatement,
-  isBlockStatement,
+  isExpression,
 } from 'babel-types'
 import { NodePath } from 'babel-traverse'
 
@@ -48,7 +48,7 @@ export const getMapAndFilterExpression = (
 export const insertFunctionExpressionIntoBlock = (
   block: NodePath,
   identifier: Identifier,
-  expression: FunctionExpression
+  { params, body }: FunctionExpression
 ) => {
   block.insertBefore(
     variableDeclaration('const', [
@@ -56,10 +56,8 @@ export const insertFunctionExpressionIntoBlock = (
         identifier,
         functionExpression(
           undefined,
-          expression.params,
-          isBlockStatement(expression.body)
-            ? expression.body
-            : blockStatement([returnStatement(expression.body)])
+          params,
+          isExpression(body) ? blockStatement([returnStatement(body)]) : body
         )
       ),
     ])

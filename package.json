@@ -1,5 +1,5 @@
 {
-  "version": "0.1.3",
+  "version": "0.1.5",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -14,7 +14,7 @@
     "start": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test",
-    "lint": "tsdx lint",
+    "lint": "tsdx lint src --ignore-path test",
     "prepare": "tsdx build"
   },
   "peerDependencies": {},
@@ -27,7 +27,9 @@
     "printWidth": 80,
     "semi": false,
     "singleQuote": true,
-    "trailingComma": "es5"
+    "trailingComma": "es5",
+    "bracketSpacing": true,
+    "arrowParens": "always"
   },
   "name": "babel-plugin-transform-reduce",
   "author": "Luis Felipe Zaguini",

@@ -6,3 +6,5 @@ const fn = () =>
 
     return curr
   }, [])
+
+fn()

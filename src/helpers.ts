@@ -3,8 +3,6 @@ import {
   FunctionExpression,
   Identifier,
   MemberExpression,
-  variableDeclaration,
-  variableDeclarator
 } from 'babel-types'
 import { NodePath } from 'babel-traverse'
 
@@ -39,19 +37,4 @@ export const getMapAndFilterExpression = (
     mapExpression: false,
     filterExpression: false,
   }
-}
-
-export const insertFunctionExpressionBefore = (
-  block: NodePath,
-  identifier: Identifier,
-  expression: FunctionExpression
-) => {
-  block.insertBefore(
-    variableDeclaration('const', [
-      variableDeclarator(
-        identifier,
-        expression
-      ),
-    ])
-  )
 }

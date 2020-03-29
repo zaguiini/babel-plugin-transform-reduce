@@ -1,14 +1,17 @@
 import {
-    blockStatement,
-    callExpression,
-    Expression,
-    expressionStatement,
-    functionExpression,
-    identifier,
-    ifStatement,
-    memberExpression,
-    returnStatement,
-    arrayExpression, arrowFunctionExpression,
+  blockStatement,
+  callExpression,
+  Expression,
+  expressionStatement,
+  functionExpression,
+  identifier,
+  ifStatement,
+  memberExpression,
+  returnStatement,
+  arrayExpression,
+  arrowFunctionExpression,
+  variableDeclaration,
+  variableDeclarator,
 } from 'babel-types'
 
 interface RenderReducer {
@@ -17,31 +20,35 @@ interface RenderReducer {
   isArrowFunction: boolean
 }
 
-export const renderReducer = ({ filter, map, isArrowFunction }: RenderReducer) => {
-    const params = [identifier('curr'), identifier('next')]
-    const body = blockStatement([
-        ifStatement(
-            callExpression(filter, [identifier('next')]),
-            blockStatement([
-                expressionStatement(
-                    callExpression(
-                        memberExpression(identifier('curr'), identifier('push')),
-                        [
-                            callExpression(map, [
-                                identifier('next'),
-                                memberExpression(identifier('curr'), identifier('length')),
-                            ]),
-                        ]
-                    )
-                ),
-            ])
+export const renderReducer = ({
+  filter,
+  map,
+  isArrowFunction,
+}: RenderReducer) => {
+  const params = [identifier('curr'), identifier('next')]
+  const body = blockStatement([
+    ifStatement(
+      callExpression(filter, [identifier('next')]),
+      blockStatement([
+        expressionStatement(
+          callExpression(
+            memberExpression(identifier('curr'), identifier('push')),
+            [
+              callExpression(map, [
+                identifier('next'),
+                memberExpression(identifier('curr'), identifier('length')),
+              ]),
+            ]
+          )
         ),
-        returnStatement(identifier('curr')),
-    ])
+      ])
+    ),
+    returnStatement(identifier('curr')),
+  ])
 
-    return isArrowFunction ? arrowFunctionExpression(params, body) : functionExpression(
-        undefined, params, body
-        )
+  return isArrowFunction
+    ? arrowFunctionExpression(params, body)
+    : functionExpression(undefined, params, body)
 }
 
 interface RenderReduce {
@@ -54,3 +61,6 @@ export const renderReduce = ({ callee, reducer }: RenderReduce) =>
     reducer,
     arrayExpression(),
   ])
+
+export const constant = (...args: Parameters<typeof variableDeclarator>) =>
+  variableDeclaration('const', [variableDeclarator(...args)])

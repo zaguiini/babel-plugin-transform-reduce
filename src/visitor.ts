@@ -78,7 +78,7 @@ export const visitor = {
 
       path.replaceWith(
         renderReduce({
-          callee: ((((path.node as CallExpression).callee as MemberExpression)
+          callee: (((path.node.callee as MemberExpression)
             .object as CallExpression).callee as MemberExpression).object,
           reducer: canWeInsertNewStatements ? REDUCER_IDENTIFIER : REDUCER,
         })

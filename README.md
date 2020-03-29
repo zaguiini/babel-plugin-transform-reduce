@@ -40,7 +40,7 @@ So I've created this plugin to deal with it: it transforms `.filter() + .map()` 
 Usage:
 
 ```bash
-yarn add babel-plugin-transform-reduce
+yarn add babel-plugin-transform-reduce --dev
 ```
 
 then, in your `.babelrc`:

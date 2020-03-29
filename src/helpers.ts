@@ -3,11 +3,12 @@ import {
   FunctionExpression,
   Identifier,
   MemberExpression,
-  blockStatement,
   functionExpression,
   returnStatement,
   variableDeclaration,
   variableDeclarator,
+  blockStatement,
+  isBinaryExpression,
 } from 'babel-types'
 import { NodePath } from 'babel-traverse'
 
@@ -56,7 +57,9 @@ export const insertFunctionExpressionIntoBlock = (
         functionExpression(
           undefined,
           expression.params,
-          blockStatement([returnStatement(expression)])
+          isBinaryExpression(expression.body)
+            ? blockStatement([returnStatement(expression.body)])
+            : expression.body
         )
       ),
     ])

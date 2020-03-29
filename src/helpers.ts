@@ -8,7 +8,7 @@ import {
   variableDeclaration,
   variableDeclarator,
   blockStatement,
-  isBinaryExpression,
+  isBlockStatement,
 } from 'babel-types'
 import { NodePath } from 'babel-traverse'
 
@@ -57,9 +57,9 @@ export const insertFunctionExpressionIntoBlock = (
         functionExpression(
           undefined,
           expression.params,
-          isBinaryExpression(expression.body)
-            ? blockStatement([returnStatement(expression.body)])
-            : expression.body
+          isBlockStatement(expression.body)
+            ? expression.body
+            : blockStatement([returnStatement(expression.body)])
         )
       ),
     ])

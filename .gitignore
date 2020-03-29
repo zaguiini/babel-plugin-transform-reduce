@@ -3,3 +3,4 @@ dist
 .idea
 *.d.ts
 *.js
+!test/**/*.js

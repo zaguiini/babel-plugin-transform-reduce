@@ -66,6 +66,7 @@ export const visitor = {
         map: canWeInsertNewStatements
           ? MAP_EXPRESSION_IDENTIFIER
           : mapExpression,
+        isArrowFunction: isArrowFunctionExpression(filterExpression)
       })
 
       if (canWeInsertNewStatements) {

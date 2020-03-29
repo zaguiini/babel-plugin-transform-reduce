@@ -14,13 +14,13 @@
     "start": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test",
-    "lint": "tsdx lint src --ignore-path test",
+    "lint": "tsdx lint src",
     "prepare": "tsdx build"
   },
   "peerDependencies": {},
   "husky": {
     "hooks": {
-      "pre-commit": "tsdx lint"
+      "pre-commit": "tsdx lint --ignore-pattern test"
     }
   },
   "prettier": {

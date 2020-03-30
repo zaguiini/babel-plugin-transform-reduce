@@ -51,7 +51,9 @@ export const visitor = {
           renderReducer({
             filter: FILTER_EXPRESSION_IDENTIFIER,
             map: MAP_EXPRESSION_IDENTIFIER,
-            isArrowFunction: isArrowFunctionExpression(filterExpression),
+            isArrowFunction:
+              isArrowFunctionExpression(filterExpression) ||
+              isArrowFunctionExpression(mapExpression),
             accumulator: path.scope.generateUidIdentifier('acc'),
             current: path.scope.generateUidIdentifier('curr'),
           })

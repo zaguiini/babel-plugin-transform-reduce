@@ -12,38 +12,40 @@ import {
   arrowFunctionExpression,
   variableDeclaration,
   variableDeclarator,
+  Identifier,
 } from 'babel-types'
 
 interface RenderReducer {
   filter: Expression
   map: Expression
   isArrowFunction: boolean
+  accumulator: Identifier
+  current: Identifier
 }
 
 export const renderReducer = ({
   filter,
   map,
   isArrowFunction,
+  accumulator,
+  current,
 }: RenderReducer) => {
-  const params = [identifier('curr'), identifier('next')]
+  const params = [accumulator, current]
   const body = blockStatement([
     ifStatement(
-      callExpression(filter, [identifier('next')]),
+      callExpression(filter, [current]),
       blockStatement([
         expressionStatement(
-          callExpression(
-            memberExpression(identifier('curr'), identifier('push')),
-            [
-              callExpression(map, [
-                identifier('next'),
-                memberExpression(identifier('curr'), identifier('length')),
-              ]),
-            ]
-          )
+          callExpression(memberExpression(accumulator, identifier('push')), [
+            callExpression(map, [
+              current,
+              memberExpression(accumulator, identifier('length')),
+            ]),
+          ])
         ),
       ])
     ),
-    returnStatement(identifier('curr')),
+    returnStatement(accumulator),
   ])
 
   return isArrowFunction

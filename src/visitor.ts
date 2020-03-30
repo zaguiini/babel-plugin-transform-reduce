@@ -3,16 +3,12 @@ import {
   blockStatement,
   CallExpression,
   Expression,
-  FunctionExpression,
   identifier,
   isArrowFunctionExpression,
-  isCallExpression,
+  isBlockStatement,
   isIdentifier,
   Node,
   returnStatement,
-  Statement,
-  variableDeclaration,
-  variableDeclarator,
 } from 'babel-types'
 
 import { getMapAndFilterExpression } from './helpers'
@@ -29,6 +25,14 @@ export const visitor = {
         return
       }
 
+      if (
+        isArrowFunctionExpression(path.parent) &&
+        !isBlockStatement(path.parent.body)
+      ) {
+        path.replaceWith(blockStatement([returnStatement(path.node)]))
+        return
+      }
+
       const MAP_EXPRESSION_IDENTIFIER = isIdentifier(mapExpression)
         ? identifier(mapExpression.name)
         : path.scope.generateUidIdentifier('mapFn')
@@ -42,20 +46,16 @@ export const visitor = {
       const REDUCER_IDENTIFIER = path.scope.generateUidIdentifier('reducer')
 
       const statements: Node[] = [
-        variableDeclaration('const', [
-          variableDeclarator(
-            REDUCER_IDENTIFIER,
-            renderReducer({
-              filter: FILTER_EXPRESSION_IDENTIFIER,
-              map: MAP_EXPRESSION_IDENTIFIER,
-              isArrowFunction: isArrowFunctionExpression(filterExpression),
-            })
-          ),
-        ]),
-        renderReduce({
-          callee,
-          reducer: REDUCER_IDENTIFIER,
-        }),
+        constant(
+          REDUCER_IDENTIFIER,
+          renderReducer({
+            filter: FILTER_EXPRESSION_IDENTIFIER,
+            map: MAP_EXPRESSION_IDENTIFIER,
+            isArrowFunction: isArrowFunctionExpression(filterExpression),
+            accumulator: path.scope.generateUidIdentifier('acc'),
+            current: path.scope.generateUidIdentifier('curr'),
+          })
+        ),
       ]
 
       if (!isIdentifier(mapExpression)) {
@@ -68,17 +68,13 @@ export const visitor = {
         )
       }
 
-      const parent = path.parent as FunctionExpression
-      const canWeInsertNewStatements = !isCallExpression(parent.body)
-
-      if (canWeInsertNewStatements) {
-        path.replaceWithMultiple(statements)
-      } else {
-        statements[statements.length - 1] = returnStatement(
-          statements[statements.length - 1] as CallExpression
-        )
-        parent.body = blockStatement(statements as Statement[])
-      }
+      path.getStatementParent().insertBefore(statements)
+      path.replaceWith(
+        renderReduce({
+          callee,
+          reducer: REDUCER_IDENTIFIER,
+        })
+      )
     },
   },
 }

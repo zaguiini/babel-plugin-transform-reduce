@@ -11,7 +11,7 @@ Into this
 ```js
 const fn = () => {
   const _filterFn = (i) => i > 1
-  const _mapFn = (i) => i * 2
+  const _mapFn = (i) => i * 3
 
   const _reducer = (_acc, _curr) => {
     if (_filterFn(_curr)) {

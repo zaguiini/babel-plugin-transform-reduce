@@ -13,3 +13,5 @@ const fn = () => {
 
   return [1, 2, 3].reduce(_reducer, [])
 }
+
+fn()
